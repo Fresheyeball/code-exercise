@@ -29,38 +29,29 @@ func watchInput() *fsnotify.Watcher {
 	return watcher
 }
 
-func collect(watcher *fsnotify.Watcher) <-chan fsnotify.Event {
-	x := make(chan fsnotify.Event)
+func retrieve(watcher *fsnotify.Watcher) <-chan fsnotify.Event {
+	events := make(chan fsnotify.Event)
 	go func() {
 		for {
 			select {
 			case event := <-watcher.Events:
-				x <- event
+				events <- event
 			case err := <-watcher.Errors:
 				log.Println("error:", err)
 			}
 		}
 	}()
-	return x
+	return events
+}
+
+func collect(<-chan fsnotify.Event) <-chan stat {
+	return make(chan stat)
 }
 
 func main() {
 
 	watcher := watchInput()
-
-	go func() {
-		for {
-			select {
-			case event := <-watcher.Events:
-				log.Println("event:", event)
-				if event.Op&fsnotify.Write == fsnotify.Write {
-					log.Println("modified file:", event.Name)
-				}
-			case err := <-watcher.Errors:
-				log.Println("error:", err)
-			}
-		}
-	}()
+	log.Println(<-retrieve(watcher))
 
 	// cleanup before you die
 	defer watcher.Close()
