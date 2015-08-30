@@ -38,6 +38,6 @@ func process(filePath string, stat stat) stat {
 func calcAvg(state state) stat {
 	stat := state.stat
 	total := int64(stat.doorCnt + stat.alarmCnt + stat.doorCnt)
-	stat.avgProcessingTime = time.Duration(state.duration.Nanoseconds() / total)
+	stat.avgProcessingTime = time.Duration(safeDiv(state.duration.Nanoseconds(), total))
 	return stat
 }
