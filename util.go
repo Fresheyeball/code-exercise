@@ -8,6 +8,10 @@ func attempt(err error) {
 	}
 }
 
+func isError(_ interface{}, err error) bool {
+	return err != nil
+}
+
 // tuples are only for returns? bullshit mang!
 // func attemptWith(message string, (x int, err error)) int {
 // 	return x

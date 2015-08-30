@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"log"
 	SYS "syscall"
 	"time"
@@ -10,37 +9,27 @@ import (
 	death "github.com/vrecan/death"
 )
 
-func process(filePath string, initial stat) stat {
-	contents, _ := ioutil.ReadFile(filePath)
-	a, _ := decodeAlarm(contents)
-	d, _ := decodeDoor(contents)
-	i, _ := decodeImg(contents)
-	switch {
-	case a != nil:
-		initial.alarmCnt++
-	case d != nil:
-		initial.doorCnt++
-	case i != nil:
-		initial.imgCnt++
-	}
-
-	return emptyStat
+type state struct {
+	stat     stat
+	duration time.Duration
 }
+
+var emptyState = state{emptyStat, 0}
 
 func collectOn(events <-chan (fsnotify.Event), ticker <-chan (time.Time)) <-chan (stat) {
 	stats := make(chan stat)
-	state := emptyStat
+	state := emptyState
 
 	go func() {
 		for {
 			select {
 			case event := <-events:
 				eventTime := time.Now()
-
-				log.Println("--->", eventTime, event.Name)
+				state.stat = process(event.Name, state.stat)
+				state.duration = state.duration + time.Since(eventTime)
 			case <-ticker:
-				stats <- state
-				state = emptyStat
+				stats <- calcAvg(state)
+				state = emptyState
 			}
 		}
 	}()
@@ -51,7 +40,7 @@ func collectOn(events <-chan (fsnotify.Event), ticker <-chan (time.Time)) <-chan
 func main() {
 	w := logErrors(watchInput("input/"))
 
-	go collectOn(w.watcher.Events, time.NewTicker(time.Second).C)
+	log.Println(<-collectOn(w.watcher.Events, time.NewTicker(time.Second).C))
 
 	death.NewDeath(SYS.SIGINT, SYS.SIGTERM).WaitForDeath(w)
 }
