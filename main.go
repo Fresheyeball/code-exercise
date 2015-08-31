@@ -2,58 +2,52 @@ package main
 
 import (
 	"log"
+	SYS "syscall"
+	"time"
 
-	fsnotify "github.com/go-fsnotify/fsnotify"
+	"github.com/go-fsnotify/fsnotify"
+	death "github.com/vrecan/death"
 )
 
-type stat struct {
-	doorCnt           int
-	ImgCnt            int
-	alarmCnt          int
-	avgProcessingTime int
+type state struct {
+	stat     stat
+	duration time.Duration
 }
 
-func fatality(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
+var emptyState = state{emptyStat, 0}
 
-func watchInput() *fsnotify.Watcher {
-	watcher, watcherr := fsnotify.NewWatcher()
-	fatality(watcherr)
+func collectOn(events <-chan (fsnotify.Event), ticker <-chan (time.Time)) <-chan (stat) {
+	stats := make(chan stat)
+	state := emptyState
 
-	adderr := watcher.Add("input/")
-	fatality(adderr)
-
-	return watcher
-}
-
-func retrieve(watcher *fsnotify.Watcher) <-chan fsnotify.Event {
-	events := make(chan fsnotify.Event)
 	go func() {
-		for {
-			select {
-			case event := <-watcher.Events:
-				events <- event
-			case err := <-watcher.Errors:
-				log.Println("error:", err)
-			}
+		for event := range events {
+			log.Println("event", event)
+			eventTime := time.Now()
+			state.stat = process(event.Name, state.stat)
+			state.duration = state.duration + time.Since(eventTime)
 		}
 	}()
-	return events
-}
 
-func collect(<-chan fsnotify.Event) <-chan stat {
-	return make(chan stat)
+	go func() {
+		for range ticker {
+			log.Println("tick")
+			go func() {
+				newState := calcAvg(state)
+				log.Println("send", newState)
+				stats <- newState
+				state = emptyState
+			}()
+		}
+	}()
+
+	return stats
 }
 
 func main() {
+	w := logErrors(watchInput("input/"))
 
-	watcher := watchInput()
-	log.Println(<-retrieve(watcher))
+	printStat(<-collectOn(w.watcher.Events, time.NewTicker(time.Second).C))
 
-	// cleanup before you die
-	defer watcher.Close()
-	<-make(chan bool)
+	death.NewDeath(SYS.SIGINT, SYS.SIGTERM).WaitForDeath(w)
 }
