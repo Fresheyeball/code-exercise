@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"time"
 )
@@ -40,4 +41,9 @@ func calcAvg(state state) stat {
 	total := int64(stat.doorCnt + stat.alarmCnt + stat.doorCnt)
 	stat.avgProcessingTime = time.Duration(safeDiv(state.duration.Nanoseconds(), total))
 	return stat
+}
+
+func printStat(stat stat) {
+	avgProcessingTime := stat.avgProcessingTime.Nanoseconds() / time.Millisecond.Nanoseconds()
+	fmt.Printf("DoorCnt: %d, ImgCnt: %d, AlarmCnt: %d, avgProcessingTime: %dms \n", stat.doorCnt, stat.imgCnt, stat.alarmCnt, avgProcessingTime)
 }
