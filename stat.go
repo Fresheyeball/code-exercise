@@ -47,3 +47,11 @@ func printStat(stat stat) {
 	avgProcessingTime := stat.avgProcessingTime.Nanoseconds() / time.Millisecond.Nanoseconds()
 	fmt.Printf("DoorCnt: %d, ImgCnt: %d, AlarmCnt: %d, avgProcessingTime: %dms \n", stat.doorCnt, stat.imgCnt, stat.alarmCnt, avgProcessingTime)
 }
+
+func printStats(stats <-chan (stat)) {
+	go func() {
+		for {
+			printStat(<-stats)
+		}
+	}()
+}

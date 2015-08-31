@@ -47,7 +47,7 @@ func collectOn(events <-chan (fsnotify.Event), ticker <-chan (time.Time)) <-chan
 func main() {
 	w := logErrors(watchInput("input/"))
 
-	printStat(<-collectOn(w.watcher.Events, time.NewTicker(time.Second).C))
+	printStats(collectOn(w.watcher.Events, time.NewTicker(time.Second).C))
 
 	death.NewDeath(SYS.SIGINT, SYS.SIGTERM).WaitForDeath(w)
 }
