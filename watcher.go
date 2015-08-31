@@ -1,10 +1,6 @@
 package main
 
-import (
-	"log"
-
-	"github.com/go-fsnotify/fsnotify"
-)
+import "github.com/go-fsnotify/fsnotify"
 
 type watcher struct {
 	watcher *fsnotify.Watcher
@@ -29,10 +25,7 @@ func (w watcher) Close() {
 func logErrors(w watcher) watcher {
 	go func() {
 		for {
-			select {
-			case err := <-w.watcher.Errors:
-				log.Println("error:", err)
-			}
+			attempt(<-w.watcher.Errors)
 		}
 	}()
 	return w

@@ -6,25 +6,25 @@ import (
 )
 
 type alarm struct {
-	date  time.Time
-	name  string
-	floor int
-	room  int
+	Date  time.Time `json:"Date"`
+	Name  string    `json:"name"`
+	Floor int       `json:"floor"`
+	Room  int       `json:"room"`
 }
 
 type door struct {
-	date time.Time
-	open bool
+	Date time.Time `json:"Date"`
+	Open bool      `json:"open"`
 }
 
 type img struct {
-	date  time.Time
-	size  int
-	bytes []byte
+	Date  time.Time `json:"Date"`
+	Size  int       `json:"size"`
+	Bytes []byte    `json:"bytes"`
 }
 
 func decodeAlarm(j []byte) (alarm, error) {
-	var a alarm
+	a := alarm{}
 	err := json.Unmarshal(j, &a)
 	return a, err
 }

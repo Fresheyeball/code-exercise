@@ -8,6 +8,17 @@ func attempt(err error) {
 	}
 }
 
+func attemptWith(message string, err error) {
+	if err != nil {
+		log.Fatal(message, err)
+	}
+}
+
+func attemptGet(x interface{}, err error) interface{} {
+	attempt(err)
+	return x
+}
+
 func isError(_ interface{}, err error) bool {
 	return err != nil
 }
@@ -18,8 +29,3 @@ func safeDiv(x int64, y int64) int64 {
 	}
 	return x / y
 }
-
-// tuples are only for returns? bullshit mang!
-// func attemptWith(message string, (x int, err error)) int {
-// 	return x
-// }

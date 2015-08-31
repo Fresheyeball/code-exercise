@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"time"
 )
 
@@ -31,6 +32,8 @@ func process(filePath string, stat stat) stat {
 		stat.doorCnt++
 	case isError(decodeImg(contents)):
 		stat.imgCnt++
+	default:
+		log.Println("Parse error with: ", filePath)
 	}
 
 	return stat
