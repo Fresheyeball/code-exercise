@@ -7,9 +7,7 @@ type watcher struct {
 }
 
 func newWatcher() watcher {
-	w, err := fsnotify.NewWatcher()
-	attempt(err)
-	return watcher{w}
+	return watcher{attemptGet(fsnotify.NewWatcher())}
 }
 
 func watchInput(input string) watcher {

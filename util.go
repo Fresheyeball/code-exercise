@@ -20,7 +20,7 @@ func attemptGet(x interface{}, err error) interface{} {
 }
 
 func isError(_ interface{}, err error) bool {
-	return err != nil
+	return err == nil
 }
 
 func safeDiv(x int64, y int64) int64 {

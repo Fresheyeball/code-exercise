@@ -26,11 +26,11 @@ func process(filePath string, stat stat) stat {
 	contents, _ := ioutil.ReadFile(filePath)
 
 	switch {
-	case isError(decodeAlarm(contents)):
+	case !isError(decodeAlarm(contents)):
 		stat.alarmCnt++
-	case isError(decodeDoor(contents)):
+	case !isError(decodeDoor(contents)):
 		stat.doorCnt++
-	case isError(decodeImg(contents)):
+	case !isError(decodeImg(contents)):
 		stat.imgCnt++
 	default:
 		log.Println("Parse error with: ", filePath)
