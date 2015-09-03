@@ -19,6 +19,13 @@ func attemptGet(x interface{}, err error) interface{} {
 	return x
 }
 
+func attemptGetWith(message string) func(interface{}, error) interface{} {
+	return func(x interface{}, err error) interface{} {
+		attemptWith(message, err)
+		return x
+	}
+}
+
 func isError(_ interface{}, err error) bool {
 	return err == nil
 }

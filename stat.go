@@ -23,19 +23,19 @@ func encodeStat(s stat) []byte {
 var emptyStat = stat{0, 0, 0, 0}
 
 func process(filePath string, stat stat) stat {
-	contents, _ := ioutil.ReadFile(filePath)
-
-	switch {
-	case !isError(decodeAlarm(contents)):
-		stat.alarmCnt++
-	case !isError(decodeDoor(contents)):
-		stat.doorCnt++
-	case !isError(decodeImg(contents)):
-		stat.imgCnt++
-	default:
-		log.Println("Parse error with: ", filePath)
+	decoded, err := decode(attemptGet(ioutil.ReadFile(filePath)).([]byte))
+	if err != nil {
+		log.Println("Parse error with: " + filePath)
+		return stat
 	}
-
+	switch decoded.Kind {
+	case alarmKind:
+		stat.alarmCnt++
+	case doorKind:
+		stat.doorCnt++
+	case imgKind:
+		stat.imgCnt++
+	}
 	return stat
 }
 
