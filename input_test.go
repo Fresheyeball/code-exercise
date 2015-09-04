@@ -1,26 +1,37 @@
 package main
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/google/gofuzz"
 )
 
-func fuzzString() string {
-	var s string
-	fuzz.New().Fuzz(&s)
-	return s
-}
-
 func TestDecode(t *testing.T) {
-	for i := 1; i <= 100; i++ {
-		kind := fuzzString()
+	var s string
+	fuzzy := fuzz.New()
+	forN(100, func() {
+		fuzzy.Fuzz(&s)
+		kind := s
 		data := "{\"Type\":\"" + kind + "\"}"
-		a, _ := decode([]byte(data))
+		a, err := decode([]byte(data))
 		expected := input{kind}
-		if a != expected {
-			t.Fatal("decode did not parse as expected with", kind)
-		}
-	}
 
+		// bail! diminishing returns on handling json parsing
+		// of backslash and surrounding special things...
+		if strings.Contains(kind, `\`) {
+			return
+		}
+
+		isValid := kind != "" && !strings.Contains(kind, `"`)
+
+		if !isValid && err == nil {
+			t.Fatal("decode should have failed, but did'nt with ", kind, " and ", a, err)
+		}
+
+		if isValid && err != nil && a != expected {
+			t.Fatal("decode did not parse as expected with ", kind, " and ", a)
+		}
+
+	})
 }

@@ -17,12 +17,21 @@ type stat struct {
 var emptyStat = stat{0, 0, 0, 0}
 
 func process(filePath string, stat stat) stat {
-	decoded, err := decode(attemptGet(ioutil.ReadFile(filePath)).([]byte))
+	decoded, err :=
+		decode(attemptGet(ioutil.ReadFile(filePath)).([]byte))
 	if err != nil {
-		log.Println("Parse error with: " + filePath)
+		log.Println("Parse failure in file: "+filePath+" With: ", err)
 		return stat
 	}
-	switch decoded.Kind {
+	updatedStat := updateStat(decoded.Kind, stat)
+	if updatedStat == stat {
+		log.Println("Parse successful but not a known type in file: "+filePath+" Found: ", decoded.Kind)
+	}
+	return updatedStat
+}
+
+func updateStat(kind string, stat stat) stat {
+	switch kind {
 	case alarmKind:
 		stat.alarmCnt++
 	case doorKind:
@@ -36,19 +45,20 @@ func process(filePath string, stat stat) stat {
 func calcAvg(state state) stat {
 	stat := state.stat
 	total := int64(stat.doorCnt + stat.alarmCnt + stat.doorCnt)
-	stat.avgProcessingTime = time.Duration(safeDiv(state.duration.Nanoseconds(), total))
+	stat.avgProcessingTime =
+		time.Duration(safeDiv(state.duration.Nanoseconds(), total))
 	return stat
 }
 
-func printStat(stat stat) {
+func renderStat(stat stat) string {
 	avgProcessingTime := stat.avgProcessingTime.Nanoseconds() / time.Millisecond.Nanoseconds()
-	fmt.Printf("DoorCnt: %d, ImgCnt: %d, AlarmCnt: %d, avgProcessingTime: %dms \n", stat.doorCnt, stat.imgCnt, stat.alarmCnt, avgProcessingTime)
+	return fmt.Sprintf("DoorCnt: %d, ImgCnt: %d, AlarmCnt: %d, avgProcessingTime: %dms \n", stat.doorCnt, stat.imgCnt, stat.alarmCnt, avgProcessingTime)
 }
 
 func printStats(stats <-chan (stat)) {
 	go func() {
 		for {
-			printStat(<-stats)
+			log.Println(renderStat(<-stats))
 		}
 	}()
 }

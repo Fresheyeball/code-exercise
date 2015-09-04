@@ -25,3 +25,9 @@ func safeDiv(x int64, y int64) int64 {
 	}
 	return x / y
 }
+
+func forN(i int, f func()) {
+	for j := 1; j <= i; j++ {
+		f()
+	}
+}
