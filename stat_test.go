@@ -4,6 +4,8 @@ import (
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/google/gofuzz"
 )
 
 func choose(min, max int) int {
@@ -32,42 +34,34 @@ func TestUpdateStat(t *testing.T) {
 	})
 }
 
-// func abs(x int) int {
-// 	return int(math.Abs(float64(x) / 1000000000000))
-// }
+func TestCalcAvg(t *testing.T) {
+	var doorCnt int
+	var alarmCnt int
+	var imgCnt int
+	var durration int
+	var sampleAvg int64
+	fuzzy := fuzz.New()
+	forN(100, func() {
+		fuzzy.Fuzz(&doorCnt)
+		fuzzy.Fuzz(&alarmCnt)
+		fuzzy.Fuzz(&imgCnt)
+		fuzzy.Fuzz(&durration)
 
-// func TestCalcAvg(t *testing.T) {
-// 	var doorCnt int
-// 	var alarmCnt int
-// 	var imgCnt int
-// 	var durration int
-// 	var sampleAvg int64
-// 	fuzzy := fuzz.New()
-// 	for i := 1; i <= 100; i++ {
-// 		fuzzy.Fuzz(&doorCnt)
-// 		fuzzy.Fuzz(&alarmCnt)
-// 		fuzzy.Fuzz(&imgCnt)
-// 		fuzzy.Fuzz(&durration)
-// 		doorCnt = abs(doorCnt)
-// 		alarmCnt = abs(alarmCnt)
-// 		imgCnt = abs(imgCnt)
-// 		durration = abs(durration)
-//
-// 		s := state{stat{doorCnt, imgCnt, alarmCnt, 0}, time.Duration(durration)}
-// 		total := doorCnt + imgCnt + alarmCnt
-// 		if total == 0 {
-// 			sampleAvg = 0
-// 		} else {
-// 			sampleAvg = int64(durration / total)
-// 		}
-//
-// 		avgProcessingTime :=
-// 			calcAvg(s).avgProcessingTime.Nanoseconds()
-//
-// 		if avgProcessingTime != sampleAvg {
-// 			log.Println("state", s)
-// 			log.Println("sampleAvg", sampleAvg, "avgProcessingTime", avgProcessingTime)
-// 			t.Fatal("average computation is incorrect with")
-// 		}
-// 	}
-// }
+		s := state{stat{doorCnt, imgCnt, alarmCnt, 0}, time.Duration(durration)}
+
+		total := doorCnt + imgCnt + alarmCnt
+
+		if total == 0 {
+			sampleAvg = 0
+		} else {
+			sampleAvg = int64(durration / total)
+		}
+
+		avgProcessingTime :=
+			calcAvg(s).avgProcessingTime.Nanoseconds()
+
+		if avgProcessingTime != sampleAvg {
+			t.Fatal("average computation is incorrect with")
+		}
+	})
+}
