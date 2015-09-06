@@ -19,7 +19,7 @@ func whenCreation(events <-chan fsnotify.Event) <-chan fsnotify.Event {
 	out := make(chan fsnotify.Event)
 	write := fsnotify.Write
 	create := fsnotify.Create
-	go func() {
+	pass := func() {
 		for event := range events {
 			switch {
 			case event.Op&create == create:
@@ -28,7 +28,8 @@ func whenCreation(events <-chan fsnotify.Event) <-chan fsnotify.Event {
 				out <- event
 			}
 		}
-	}()
+	}
+	go pass()
 	return out
 }
 

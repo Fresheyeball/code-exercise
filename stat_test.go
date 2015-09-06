@@ -19,7 +19,7 @@ func getRandomFrom(xs []string) string {
 func TestUpdateStat(t *testing.T) {
 	options := []string{alarmKind, doorKind, imgKind, "crap"}
 	rand.Seed(time.Now().Unix())
-	forN(100, func() {
+	proof := func() {
 		option := getRandomFrom(options)
 		updatedStat := updateStat(option, emptyStat)
 		if updatedStat == emptyStat && option != "crap" {
@@ -31,17 +31,18 @@ func TestUpdateStat(t *testing.T) {
 		if updatedStat != emptyStat && option != "crap" && (updatedStat.alarmCnt+updatedStat.doorCnt+updatedStat.imgCnt) != 1 {
 			t.Fatal("stat updated incorrectly")
 		}
-	})
+	}
+	forN(100, proof)
 }
 
 func TestCalcAvg(t *testing.T) {
-	var doorCnt int
-	var alarmCnt int
-	var imgCnt int
-	var durration int
-	var sampleAvg int64
 	fuzzy := fuzz.New()
-	forN(100, func() {
+	proof := func() {
+		var sampleAvg int64
+		var doorCnt int
+		var alarmCnt int
+		var imgCnt int
+		var durration int
 		fuzzy.Fuzz(&doorCnt)
 		fuzzy.Fuzz(&alarmCnt)
 		fuzzy.Fuzz(&imgCnt)
@@ -65,5 +66,6 @@ func TestCalcAvg(t *testing.T) {
 		if avgProcessingTime != sampleAvg {
 			t.Fatal("average computation is incorrect with")
 		}
-	})
+	}
+	forN(100, proof)
 }

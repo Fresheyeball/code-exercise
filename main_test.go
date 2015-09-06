@@ -14,7 +14,7 @@ func TestWhenCreation(t *testing.T) {
 	out := whenCreation(in)
 	write := fsnotify.Write
 	create := fsnotify.Create
-	forN(100, func() {
+	proof := func() {
 		fuzzy.Fuzz(&event)
 		in <- event
 		go func() {
@@ -26,11 +26,8 @@ func TestWhenCreation(t *testing.T) {
 				}
 			}
 		}()
-	})
-}
-
-func fuzzyDecoder(_ string, stat stat) stat {
-	return updateStat(getRandomFrom([]string{alarmKind, doorKind, imgKind}), stat)
+	}
+	forN(100, proof)
 }
 
 // func TestCollectOn(t *testing.T) {
@@ -39,11 +36,12 @@ func fuzzyDecoder(_ string, stat stat) stat {
 // 	fuzzy := fuzz.New()
 // 	events := make(chan fsnotify.Event)
 // 	ticks := make(chan time.Time)
+// 	fuzzyDecoder := func(_ string, stat stat) stat {
+// 		return updateStat(getRandomFrom([]string{alarmKind, doorKind, imgKind}), stat)
+// 	}
 // 	out := collect(fuzzyDecoder, events, ticks)
-//
 // 	forN(100, func() {
 // 		count := 0
-//
 // 		forN(choose(0, 100), func() {
 // 			fuzzy.Fuzz(&event)
 // 			count++
@@ -63,5 +61,4 @@ func fuzzyDecoder(_ string, stat stat) stat {
 // 			}
 // 		}()
 // 	})
-//
 // }

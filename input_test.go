@@ -10,7 +10,7 @@ import (
 func TestDecode(t *testing.T) {
 	var s string
 	fuzzy := fuzz.New()
-	forN(100, func() {
+	proof := func() {
 		fuzzy.Fuzz(&s)
 		kind := s
 		data := "{\"Type\":\"" + kind + "\"}"
@@ -32,5 +32,6 @@ func TestDecode(t *testing.T) {
 			t.Fatal("decode did not parse as expected with ", kind, " and ", a)
 		}
 
-	})
+	}
+	forN(100, proof)
 }
