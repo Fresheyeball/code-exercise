@@ -25,20 +25,26 @@ func decodeFile(
 
 	if err != nil {
 		return stat, println(
-			"Parse failure in file: " + string(filePath) + " With: " + err.Error())
+			"Parse failure in file: " +
+				string(filePath) +
+				" With: " +
+				err.Error())
 	}
 
 	updatedStat := updateStat(decoded.Kind, stat)
-
-	handleBadType := func() println {
+	log.Println("---> ", updatedStat)
+	handleBadKind := func() println {
 		if updatedStat == stat {
 			return println(
-				"Parse successful but not a known type in file: " + string(filePath) + " Found: " + decoded.Kind)
+				"Parse successful but not a known type in file: " +
+					string(filePath) +
+					" Found: " +
+					decoded.Kind)
 		}
 		return println("")
 	}
 
-	return updatedStat, handleBadType()
+	return updatedStat, handleBadKind()
 }
 
 func updateStat(kind string, stat stat) stat {
@@ -65,7 +71,10 @@ func renderStat(stat stat) string {
 	avgProcessingTime :=
 		stat.avgProcessingTime.Nanoseconds() / time.Millisecond.Nanoseconds()
 	return fmt.Sprintf(
-		"DoorCnt: %d, ImgCnt: %d, AlarmCnt: %d, avgProcessingTime: %dms",
+		"DoorCnt: %d, "+
+			"ImgCnt: %d, "+
+			"AlarmCnt: %d, "+
+			"avgProcessingTime: %dms",
 		stat.doorCnt,
 		stat.imgCnt,
 		stat.alarmCnt,

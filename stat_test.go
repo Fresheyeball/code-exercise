@@ -22,8 +22,30 @@ func TestDecodeFile(t *testing.T) {
 		var filePath string
 		fuzzy.Fuzz(&filePath)
 		_, println := decodeFile(badFileReader, filePath, emptyStat)
-		if !strings.Contains(string(println), filePath) || !strings.Contains(string(println), "Parse failure") {
+		if !strings.Contains(string(println), filePath) ||
+			!strings.Contains(string(println), "Parse failure") {
 			t.Fatal("Bad json should have thrown an error", println, filePath)
+		}
+	}
+
+	checkBadKind := func() {
+		var kind string
+		fuzzy.Fuzz(&kind)
+		if strings.ContainsAny(kind, `\"`) {
+			return
+		}
+		badKindReader := func(_ readFile) ([]byte, error) {
+			return []byte("{\"Type\":\"" + kind + "\"}"), nil
+		}
+
+		var filePath string
+		fuzzy.Fuzz(&filePath)
+		_, println := decodeFile(badKindReader, filePath, emptyStat)
+		if !strings.Contains(string(println), filePath) ||
+			!strings.Contains(string(println), kind) ||
+			!strings.Contains(string(println), "Parse successful") {
+			runPrintln(println)
+			t.Fatal("Unknown kind should have thrown an error", kind)
 		}
 	}
 
@@ -33,6 +55,7 @@ func TestDecodeFile(t *testing.T) {
 	// }
 
 	forN(100, checkBadFile)
+	forN(100, checkBadKind)
 }
 
 func TestUpdateStat(t *testing.T) {
@@ -41,13 +64,19 @@ func TestUpdateStat(t *testing.T) {
 		kind := getRandomFrom(
 			[]string{alarmKind, doorKind, imgKind, "crap"})
 		updatedStat := updateStat(kind, emptyStat)
-		if updatedStat == emptyStat && kind != "crap" {
+		if updatedStat == emptyStat &&
+			kind != "crap" {
 			t.Fatal("stat failed to update with valid option")
 		}
-		if updatedStat != emptyStat && kind == "crap" {
+		if updatedStat != emptyStat &&
+			kind == "crap" {
 			t.Fatal("stat updated when invalid option was passed")
 		}
-		if updatedStat != emptyStat && kind != "crap" && (updatedStat.alarmCnt+updatedStat.doorCnt+updatedStat.imgCnt) != 1 {
+		if updatedStat != emptyStat &&
+			kind != "crap" &&
+			(updatedStat.alarmCnt+
+				updatedStat.doorCnt+
+				updatedStat.imgCnt) != 1 {
 			t.Fatal("stat updated incorrectly")
 		}
 	}
