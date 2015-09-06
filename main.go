@@ -32,21 +32,19 @@ func whenCreation(events <-chan fsnotify.Event) <-chan fsnotify.Event {
 	return out
 }
 
-func collectOn(events <-chan (fsnotify.Event), ticker <-chan (time.Time)) <-chan (stat) {
+func collect(decoder func(string, stat) stat, events <-chan fsnotify.Event, ticker <-chan time.Time) <-chan stat {
 	stats := make(chan stat)
-	state := emptyState
 	go func() {
+		state := emptyState
 		for {
 			select {
 			case event := <-events:
 				eventTime := time.Now()
-				state.stat = decodeFile(event.Name, state.stat)
+				state.stat = decoder(event.Name, state.stat)
 				state.duration = state.duration + time.Since(eventTime)
 			case <-ticker:
-				go func() {
-					stats <- calcAvg(state)
-					state = emptyState
-				}()
+				stats <- calcAvg(state)
+				state = emptyState
 			}
 		}
 	}()
@@ -55,6 +53,6 @@ func collectOn(events <-chan (fsnotify.Event), ticker <-chan (time.Time)) <-chan
 
 func main() {
 	w := logErrors(watchInput("input/"))
-	printStats(collectOn(whenCreation(w.watcher.Events), time.NewTicker(time.Second).C))
+	printStats(collect(decodeFile, whenCreation(w.watcher.Events), time.NewTicker(time.Second).C))
 	death.NewDeath(SYS.SIGINT, SYS.SIGTERM).WaitForDeath(w)
 }
