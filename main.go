@@ -15,11 +15,12 @@ type state struct {
 
 var emptyState = state{emptyStat, 0}
 
-func whenCreation(events <-chan fsnotify.Event) <-chan fsnotify.Event {
+func whenCreation(
+	events <-chan fsnotify.Event) <-chan fsnotify.Event {
 	out := make(chan fsnotify.Event)
 	write := fsnotify.Write
 	create := fsnotify.Create
-	pass := func() {
+	go func() {
 		for event := range events {
 			switch {
 			case event.Op&create == create:
@@ -28,8 +29,7 @@ func whenCreation(events <-chan fsnotify.Event) <-chan fsnotify.Event {
 				out <- event
 			}
 		}
-	}
-	go pass()
+	}()
 	return out
 }
 
@@ -49,7 +49,8 @@ func collect(
 			select {
 			case event := <-events:
 				eventTime := time.Now()
-				newStat, println := decoder(fileReader, event.Name, state.stat)
+				newStat, println :=
+					decoder(fileReader, event.Name, state.stat)
 				state.duration += time.Since(eventTime)
 				state.stat = newStat
 				runPrintln(println)

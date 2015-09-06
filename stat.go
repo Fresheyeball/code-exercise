@@ -73,9 +73,7 @@ func renderStat(stat stat) string {
 }
 
 func printStats(stats <-chan stat) {
-	go func() {
-		for {
-			log.Println(renderStat(<-stats))
-		}
-	}()
+	for {
+		log.Println(renderStat(<-stats))
+	}
 }
