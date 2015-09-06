@@ -16,24 +16,26 @@ type stat struct {
 
 var emptyStat = stat{0, 0, 0, 0}
 
-func decodeFile(filePath string, stat stat) stat {
+func decodeFile(filePath string, stat stat) (stat, println) {
 	decoded, err := decode(attemptGet(
 		ioutil.ReadFile(filePath)).([]byte))
 
 	if err != nil {
-		log.Println("Parse failure in file: "+filePath+" With: ", err)
-		return stat
+		return stat, println(fmt.Sprintf(
+			"Parse failure in file: "+filePath+" With: %e", err))
 	}
 
 	updatedStat := updateStat(decoded.Kind, stat)
 
-	if updatedStat == stat {
-		log.Println(
-			"Parse successful but not a known type in file: "+filePath+" Found: ",
-			decoded.Kind)
+	handleBadType := func() println {
+		if updatedStat == stat {
+			return println(
+				"Parse successful but not a known type in file: " + filePath + " Found: " + decoded.Kind)
+		}
+		return println("")
 	}
 
-	return updatedStat
+	return updatedStat, handleBadType()
 }
 
 func updateStat(kind string, stat stat) stat {

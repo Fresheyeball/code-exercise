@@ -41,26 +41,24 @@ func TestCalcAvg(t *testing.T) {
 		var doorCnt int
 		var alarmCnt int
 		var imgCnt int
-		var durration int
+		var duration int
 		fuzzy.Fuzz(&doorCnt)
 		fuzzy.Fuzz(&alarmCnt)
 		fuzzy.Fuzz(&imgCnt)
-		fuzzy.Fuzz(&durration)
+		fuzzy.Fuzz(&duration)
 
 		sampleAvg := func() int64 {
 			total := doorCnt + imgCnt + alarmCnt
 			if total == 0 {
 				return 0
 			}
-			return int64(durration / total)
+			return int64(duration / total)
 		}
 
-		s := state{
-			stat{doorCnt, imgCnt, alarmCnt, 0},
-			time.Duration(durration)}
-
 		avgProcessingTime :=
-			calcAvg(s).avgProcessingTime.Nanoseconds()
+			calcAvg(state{
+				stat{doorCnt, imgCnt, alarmCnt, 0},
+				time.Duration(duration)}).avgProcessingTime.Nanoseconds()
 
 		if avgProcessingTime != sampleAvg() {
 			t.Fatal("average computation is incorrect with")
