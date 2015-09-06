@@ -65,7 +65,7 @@ func collect(
 
 func main() {
 	w := logErrors(watchInput("input/"))
-	printStats(collect(
+	go printStats(collect(
 		runReadfile,
 		decodeFile,
 		whenCreation(w.watcher.Events),

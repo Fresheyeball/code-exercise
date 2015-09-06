@@ -24,8 +24,8 @@ func decodeFile(
 		fileReader(readFile(filePath))).([]byte))
 
 	if err != nil {
-		return stat, println(fmt.Sprintf(
-			"Parse failure in file: "+string(filePath)+" With: %e", err))
+		return stat, println(
+			"Parse failure in file: " + string(filePath) + " With: " + err.Error())
 	}
 
 	updatedStat := updateStat(decoded.Kind, stat)
