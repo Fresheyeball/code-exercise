@@ -20,7 +20,9 @@ func TestWhenCreation(t *testing.T) {
 		go func() {
 			for output := range out {
 				if !(output.Op&create == create || output.Op&write == write) {
-					t.Fatal("Something other than create and write made it through", output)
+					t.Fatal(
+						"Something other than create and write made it through",
+						output)
 				}
 			}
 		}()

@@ -47,7 +47,9 @@ func TestCalcAvg(t *testing.T) {
 		fuzzy.Fuzz(&imgCnt)
 		fuzzy.Fuzz(&durration)
 
-		s := state{stat{doorCnt, imgCnt, alarmCnt, 0}, time.Duration(durration)}
+		s := state{
+			stat{doorCnt, imgCnt, alarmCnt, 0},
+			time.Duration(durration)}
 
 		total := doorCnt + imgCnt + alarmCnt
 

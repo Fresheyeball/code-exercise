@@ -17,8 +17,7 @@ func TestDecode(t *testing.T) {
 		a, err := decode([]byte(data))
 		expected := input{kind}
 
-		// bail! diminishing returns on handling json parsing
-		// of backslash and surrounding special things...
+		// bail! diminishing returns on handling json parsing of backslash
 		if strings.Contains(kind, `\`) {
 			return
 		}

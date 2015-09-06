@@ -17,8 +17,8 @@ type stat struct {
 var emptyStat = stat{0, 0, 0, 0}
 
 func decodeFile(filePath string, stat stat) stat {
-	decoded, err :=
-		decode(attemptGet(ioutil.ReadFile(filePath)).([]byte))
+	decoded, err := decode(attemptGet(
+		ioutil.ReadFile(filePath)).([]byte))
 
 	if err != nil {
 		log.Println("Parse failure in file: "+filePath+" With: ", err)
@@ -28,7 +28,9 @@ func decodeFile(filePath string, stat stat) stat {
 	updatedStat := updateStat(decoded.Kind, stat)
 
 	if updatedStat == stat {
-		log.Println("Parse successful but not a known type in file: "+filePath+" Found: ", decoded.Kind)
+		log.Println(
+			"Parse successful but not a known type in file: "+filePath+" Found: ",
+			decoded.Kind)
 	}
 
 	return updatedStat
@@ -57,7 +59,12 @@ func calcAvg(state state) stat {
 func renderStat(stat stat) string {
 	avgProcessingTime :=
 		stat.avgProcessingTime.Nanoseconds() / time.Millisecond.Nanoseconds()
-	return fmt.Sprintf("DoorCnt: %d, ImgCnt: %d, AlarmCnt: %d, avgProcessingTime: %dms", stat.doorCnt, stat.imgCnt, stat.alarmCnt, avgProcessingTime)
+	return fmt.Sprintf(
+		"DoorCnt: %d, ImgCnt: %d, AlarmCnt: %d, avgProcessingTime: %dms",
+		stat.doorCnt,
+		stat.imgCnt,
+		stat.alarmCnt,
+		avgProcessingTime)
 }
 
 func printStats(stats <-chan (stat)) {
