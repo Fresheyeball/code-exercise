@@ -34,8 +34,9 @@ func whenCreation(events <-chan fsnotify.Event) <-chan fsnotify.Event {
 }
 
 func collect(
+	fileReader fileReader,
 	decoder func(
-		func(readFile) ([]byte, error),
+		fileReader,
 		string,
 		stat) (stat, println),
 	events <-chan fsnotify.Event,
@@ -48,10 +49,10 @@ func collect(
 			select {
 			case event := <-events:
 				eventTime := time.Now()
-				var message println
-				state.stat, message = decoder(runReadfile, event.Name, state.stat)
-				runPrintln(message)
+				newStat, println := decoder(fileReader, event.Name, state.stat)
 				state.duration += time.Since(eventTime)
+				state.stat = newStat
+				runPrintln(println)
 			case <-ticker:
 				stats <- calcAvg(state)
 				state = emptyState
@@ -64,6 +65,7 @@ func collect(
 func main() {
 	w := logErrors(watchInput("input/"))
 	printStats(collect(
+		runReadfile,
 		decodeFile,
 		whenCreation(w.watcher.Events),
 		time.NewTicker(time.Second).C))

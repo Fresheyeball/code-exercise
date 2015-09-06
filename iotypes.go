@@ -15,6 +15,7 @@ func runPrintln(println println) {
 }
 
 type readFile string
+type fileReader func(readFile) ([]byte, error)
 
 func runReadfile(readFile readFile) ([]byte, error) {
 	if readFile != "" {

@@ -16,7 +16,7 @@ type stat struct {
 var emptyStat = stat{0, 0, 0, 0}
 
 func decodeFile(
-	fileReader func(readFile) ([]byte, error),
+	fileReader fileReader,
 	filePath string,
 	stat stat) (stat, println) {
 
