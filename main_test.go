@@ -30,35 +30,8 @@ func TestWhenCreation(t *testing.T) {
 	forN(100, proof)
 }
 
-// func TestCollectOn(t *testing.T) {
-// 	var event fsnotify.Event
-// 	var tick time.Time
-// 	fuzzy := fuzz.New()
-// 	events := make(chan fsnotify.Event)
-// 	ticks := make(chan time.Time)
-// 	fuzzyDecoder := func(_ string, stat stat) stat {
-// 		return updateStat(getRandomFrom([]string{alarmKind, doorKind, imgKind}), stat)
+// func TestCollect(t *testing.T) {
+// 	reader := func(readFile) ([]byte, error){
+//
 // 	}
-// 	out := collect(fuzzyDecoder, events, ticks)
-// 	forN(100, func() {
-// 		count := 0
-// 		forN(choose(0, 100), func() {
-// 			fuzzy.Fuzz(&event)
-// 			count++
-// 			events <- event
-// 		})
-// 		go func() {
-// 			fuzzy.Fuzz(&tick)
-// 			ticks <- tick
-// 		}()
-// 		go func() {
-// 			for output := range out {
-// 				log.Println("count", count, "\toutput", output)
-// 				if count != output.doorCnt+output.imgCnt+output.alarmCnt {
-// 					t.Fatal("counts dont add up")
-// 				}
-// 				count = 0
-// 			}
-// 		}()
-// 	})
 // }

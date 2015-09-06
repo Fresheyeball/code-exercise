@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"time"
 )
@@ -16,24 +15,30 @@ type stat struct {
 
 var emptyStat = stat{0, 0, 0, 0}
 
-func decodeFile(filePath string, stat stat) stat {
+func decodeFile(
+	fileReader fileReader,
+	filePath string,
+	stat stat) (stat, println) {
+
 	decoded, err := decode(attemptGet(
-		ioutil.ReadFile(filePath)).([]byte))
+		fileReader(readFile(filePath))).([]byte))
 
 	if err != nil {
-		log.Println("Parse failure in file: "+filePath+" With: ", err)
-		return stat
+		return stat, println(
+			"Parse failure in file: " + string(filePath) + " With: " + err.Error())
 	}
 
 	updatedStat := updateStat(decoded.Kind, stat)
 
-	if updatedStat == stat {
-		log.Println(
-			"Parse successful but not a known type in file: "+filePath+" Found: ",
-			decoded.Kind)
+	handleBadType := func() println {
+		if updatedStat == stat {
+			return println(
+				"Parse successful but not a known type in file: " + string(filePath) + " Found: " + decoded.Kind)
+		}
+		return println("")
 	}
 
-	return updatedStat
+	return updatedStat, handleBadType()
 }
 
 func updateStat(kind string, stat stat) stat {
@@ -67,10 +72,8 @@ func renderStat(stat stat) string {
 		avgProcessingTime)
 }
 
-func printStats(stats <-chan (stat)) {
-	go func() {
-		for {
-			log.Println(renderStat(<-stats))
-		}
-	}()
+func printStats(stats <-chan stat) {
+	for {
+		log.Println(renderStat(<-stats))
+	}
 }
