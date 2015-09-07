@@ -15,7 +15,7 @@ func TestWhenCreation(t *testing.T) {
 	write := fsnotify.Write
 	create := fsnotify.Create
 
-	check := func() {
+	prop := func() {
 		fuzzy.Fuzz(&event)
 		in <- event
 
@@ -31,7 +31,7 @@ func TestWhenCreation(t *testing.T) {
 		}()
 	}
 
-	forN(checkSize, check)
+	check(prop)
 }
 
 // func TestCollect(t *testing.T) {

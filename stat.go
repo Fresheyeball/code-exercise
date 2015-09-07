@@ -77,13 +77,14 @@ func calcAvg(state state) stat {
 
 func renderStat(stat stat) string {
 	avgProcessingTime :=
-		stat.avgProcessingTime.Nanoseconds() / time.Millisecond.Nanoseconds()
+		stat.avgProcessingTime.Nanoseconds() /
+			time.Millisecond.Nanoseconds()
 
 	return fmt.Sprintf(
 		"DoorCnt: %d, "+
 			"ImgCnt: %d, "+
 			"AlarmCnt: %d, "+
-			"avgProcessingTime: %dms",
+			"AvgProcessingTime: %dms",
 
 		stat.doorCnt,
 		stat.imgCnt,

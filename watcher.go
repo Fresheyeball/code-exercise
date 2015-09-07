@@ -7,7 +7,6 @@ type watcher struct {
 }
 
 func newWatcher() watcher {
-
 	return watcher{
 		attemptGet(fsnotify.NewWatcher()).(*fsnotify.Watcher)}
 }

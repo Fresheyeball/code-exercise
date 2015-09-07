@@ -2,6 +2,7 @@ package main
 
 import (
 	"math/rand"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -24,7 +25,7 @@ func fuzzyStat() stat {
 func TestDecodeFile(t *testing.T) {
 	fuzzy := fuzz.New()
 
-	checkBadFile := func() {
+	propBadFile := func() {
 		badFileReader := func(_ readFile) ([]byte, error) {
 			var junk string
 			fuzzy.Fuzz(&junk)
@@ -44,7 +45,7 @@ func TestDecodeFile(t *testing.T) {
 		}
 	}
 
-	checkBadKind := func() {
+	propBadKind := func() {
 		var kind string
 		fuzzy.Fuzz(&kind)
 
@@ -73,7 +74,7 @@ func TestDecodeFile(t *testing.T) {
 		}
 	}
 
-	checkValid := func() {
+	propValid := func() {
 		kind := getRandomFrom([]string{alarmKind, doorKind, imgKind})
 		validReader := func(_ readFile) ([]byte, error) {
 			return []byte("{\"Type\":\"" + kind + "\"}"), nil
@@ -89,15 +90,15 @@ func TestDecodeFile(t *testing.T) {
 		}
 	}
 
-	forN(checkSize, checkBadFile)
-	forN(checkSize, checkBadKind)
-	forN(checkSize, checkValid)
+	check(propBadFile)
+	check(propBadKind)
+	check(propValid)
 }
 
 func TestUpdateStat(t *testing.T) {
 	rand.Seed(time.Now().Unix())
 
-	check := func() {
+	prop := func() {
 		kind := getRandomFrom(
 			[]string{alarmKind, doorKind, imgKind, "crap"})
 		updatedStat := updateStat(kind, emptyStat)
@@ -124,13 +125,13 @@ func TestUpdateStat(t *testing.T) {
 		}
 	}
 
-	forN(checkSize, check)
+	check(prop)
 }
 
 func TestCalcAvg(t *testing.T) {
 	fuzzy := fuzz.New()
 
-	check := func() {
+	prop := func() {
 		var doorCnt int
 		var alarmCnt int
 		var imgCnt int
@@ -162,5 +163,28 @@ func TestCalcAvg(t *testing.T) {
 		}
 	}
 
-	forN(checkSize, check)
+	check(prop)
+}
+
+func TestRenderStat(t *testing.T) {
+	prop := func() {
+		stat := fuzzyStat()
+		rendered := renderStat(stat)
+		milliseconds :=
+			stat.avgProcessingTime.Nanoseconds() /
+				time.Millisecond.Nanoseconds()
+		contained := func(name string, i int) {
+			if !(strings.Contains(rendered, strconv.Itoa(i)) &&
+				strings.Contains(rendered, name)) {
+				t.Fatal(name + " did not appear in rendered stat")
+			}
+		}
+
+		contained("AlarmCnt", stat.alarmCnt)
+		contained("DoorCnt", stat.doorCnt)
+		contained("ImgCnt", stat.imgCnt)
+		contained("AvgProcessingTime", int(milliseconds))
+	}
+
+	check(prop)
 }

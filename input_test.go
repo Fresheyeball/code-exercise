@@ -11,7 +11,7 @@ func TestDecode(t *testing.T) {
 	var s string
 	fuzzy := fuzz.New()
 
-	check := func() {
+	prop := func() {
 		fuzzy.Fuzz(&s)
 		kind := s
 		data := "{\"Type\":\"" + kind + "\"}"
@@ -34,5 +34,5 @@ func TestDecode(t *testing.T) {
 		}
 	}
 
-	forN(checkSize, check)
+	check(prop)
 }
