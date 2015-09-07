@@ -2,7 +2,7 @@ package main
 
 import "math/rand"
 
-const checkSize int = 1000
+const checkSize int = 100
 
 func check(f func()) {
 	forN(checkSize, f)
