@@ -90,7 +90,7 @@ func TestCollect(t *testing.T) {
 
 		forN(choose(0, 1000), func() {
 			fuzzy.Fuzz(&event)
-			// count++
+			count++
 			events <- event
 		})
 
