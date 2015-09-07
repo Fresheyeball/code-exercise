@@ -9,6 +9,14 @@ import (
 	"github.com/google/gofuzz"
 )
 
+func fuzzyStat() stat {
+	getRand := func() int {
+		return choose(0, 1000000000000000000)
+	}
+
+	return stat{getRand(), getRand(), getRand(), time.Duration(getRand())}
+}
+
 func TestDecodeFile(t *testing.T) {
 	fuzzy := fuzz.New()
 
@@ -23,7 +31,7 @@ func TestDecodeFile(t *testing.T) {
 		var filePath string
 		fuzzy.Fuzz(&filePath)
 
-		_, println := decodeFile(badFileReader, filePath, emptyStat)
+		_, println := decodeFile(badFileReader, filePath, fuzzyStat())
 
 		if !strings.Contains(string(println), filePath) ||
 			!strings.Contains(string(println), "Parse failure") {
@@ -49,7 +57,7 @@ func TestDecodeFile(t *testing.T) {
 		var filePath string
 		fuzzy.Fuzz(&filePath)
 
-		_, println := decodeFile(badKindReader, filePath, emptyStat)
+		_, println := decodeFile(badKindReader, filePath, fuzzyStat())
 
 		if !strings.Contains(string(println), filePath) ||
 			!strings.Contains(string(println), kind) ||
@@ -61,13 +69,25 @@ func TestDecodeFile(t *testing.T) {
 		}
 	}
 
-	// validReader := func(_ readFile) ([]byte, error) {
-	// 	kind := getRandomFrom([]string{alarmKind, doorKind, imgKind})
-	// 	return []byte("{\"Type\":\"" + kind + "\"}"), nil
-	// }
+	checkValid := func() {
+		kind := getRandomFrom([]string{alarmKind, doorKind, imgKind})
+		validReader := func(_ readFile) ([]byte, error) {
+			return []byte("{\"Type\":\"" + kind + "\"}"), nil
+		}
+
+		var filePath string
+		fuzzy.Fuzz(&filePath)
+
+		_, println := decodeFile(validReader, filePath, fuzzyStat())
+
+		if string(println) != "" {
+			t.Fatal("Valid json logged an error")
+		}
+	}
 
 	forN(100, checkBadFile)
 	forN(100, checkBadKind)
+	forN(100, checkValid)
 }
 
 func TestUpdateStat(t *testing.T) {
