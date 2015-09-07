@@ -73,10 +73,12 @@ func collect(
 
 func main() {
 	w := logErrors(watchInput("input/"))
+
 	go printStats(collect(
 		runReadfile,
 		decodeFile,
 		whenCreation(w.watcher.Events),
 		time.NewTicker(time.Second).C))
+
 	death.NewDeath(SYS.SIGINT, SYS.SIGTERM).WaitForDeath(w)
 }

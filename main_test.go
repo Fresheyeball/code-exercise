@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"math/rand"
 	"testing"
 	"time"
 
@@ -37,9 +38,12 @@ func TestWhenCreation(t *testing.T) {
 }
 
 func TestCollect(t *testing.T) {
+	rand.Seed(time.Now().Unix())
 	fuzzy := fuzz.New()
 	events := make(chan fsnotify.Event)
 	ticks := make(chan time.Time)
+	done := make(chan bool)
+	count := 0
 
 	dumbyReader := func(readFile) ([]byte, error) {
 		return []byte{}, nil
@@ -72,8 +76,32 @@ func TestCollect(t *testing.T) {
 		dumbyReader, decoder, events, ticks)
 
 	go func() {
-		for stat := range out {
-			log.Println(stat)
+		finalstat := <-out
+		log.Println(count, finalstat)
+		if finalstat.alarmCnt+finalstat.doorCnt+finalstat.imgCnt != count {
+			t.Fatal("stat did not increment per tick")
 		}
+		go func() {
+			done <- true
+		}()
 	}()
+
+	prop := func() {
+		var event fsnotify.Event
+		var tick time.Time
+
+		forN(choose(0, 1000), func() {
+			fuzzy.Fuzz(&event)
+			count++
+			events <- event
+		})
+
+		fuzzy.Fuzz(&tick)
+		ticks <- tick
+		<-done
+	}
+
+	prop()
+	// prop()
+
 }
