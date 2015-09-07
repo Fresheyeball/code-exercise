@@ -14,7 +14,11 @@ func fuzzyStat() stat {
 		return choose(0, 1000000000000000000)
 	}
 
-	return stat{getRand(), getRand(), getRand(), time.Duration(getRand())}
+	return stat{
+		getRand(),
+		getRand(),
+		getRand(),
+		time.Duration(getRand())}
 }
 
 func TestDecodeFile(t *testing.T) {
