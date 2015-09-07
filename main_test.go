@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"math/rand"
 	"testing"
 	"time"
@@ -77,7 +76,6 @@ func TestCollect(t *testing.T) {
 
 	go func() {
 		finalstat := <-out
-		log.Println(count, finalstat)
 		if finalstat.alarmCnt+finalstat.doorCnt+finalstat.imgCnt != count {
 			t.Fatal("stat did not increment per tick")
 		}
@@ -92,7 +90,7 @@ func TestCollect(t *testing.T) {
 
 		forN(choose(0, 1000), func() {
 			fuzzy.Fuzz(&event)
-			count++
+			// count++
 			events <- event
 		})
 
