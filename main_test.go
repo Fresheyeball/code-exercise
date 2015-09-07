@@ -42,6 +42,7 @@ func TestCollect(t *testing.T) {
 	events := make(chan fsnotify.Event)
 	ticks := make(chan time.Time)
 	done := make(chan bool)
+	// duration := time.Duration(0)
 	count := 0
 
 	dumbyReader := func(readFile) ([]byte, error) {
@@ -65,6 +66,10 @@ func TestCollect(t *testing.T) {
 			stat.imgCnt++
 		}
 
+		// sleep := time.Duration(choose(1000, 1000000))
+		// sleep := time.Duration(100000000)
+		// duration += sleep
+		// time.Sleep(sleep)
 		return stat, ""
 	}
 
@@ -74,14 +79,26 @@ func TestCollect(t *testing.T) {
 	out := collect(
 		dumbyReader, decoder, events, ticks)
 
+	end := func() {
+		done <- true
+	}
+
+	sumStat := func(stat stat) int {
+		return stat.alarmCnt + stat.doorCnt + stat.imgCnt
+	}
+
 	go func() {
-		finalstat := <-out
-		if finalstat.alarmCnt+finalstat.doorCnt+finalstat.imgCnt != count {
+		finalStat := <-out
+		go end()
+		if sumStat(finalStat) != count {
 			t.Fatal("stat did not increment per tick")
 		}
-		go func() {
-			done <- true
-		}()
+
+		// finalAvg := calcAvg(state{finalStat, duration}).avgProcessingTime
+		//
+		// if finalStat.avgProcessingTime != finalAvg {
+		// 	t.Fatal("durations did not sum correctly", finalAvg.Nanoseconds(), finalStat.avgProcessingTime.Nanoseconds())
+		// }
 	}()
 
 	prop := func() {
@@ -100,6 +117,5 @@ func TestCollect(t *testing.T) {
 	}
 
 	prop()
-	// prop()
 
 }
