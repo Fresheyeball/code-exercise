@@ -24,6 +24,7 @@ func decodeFile(
 		fileReader(readFile(filePath))).([]byte))
 
 	if err != nil {
+
 		return stat, println(
 			"Parse failure in file: " +
 				string(filePath) +
@@ -32,7 +33,7 @@ func decodeFile(
 	}
 
 	updatedStat := updateStat(decoded.Kind, stat)
-	log.Println("---> ", updatedStat)
+
 	handleBadKind := func() println {
 		if updatedStat == stat {
 			return println(
@@ -41,6 +42,7 @@ func decodeFile(
 					" Found: " +
 					decoded.Kind)
 		}
+
 		return println("")
 	}
 
@@ -49,32 +51,40 @@ func decodeFile(
 
 func updateStat(kind string, stat stat) stat {
 	switch kind {
+
 	case alarmKind:
 		stat.alarmCnt++
+
 	case doorKind:
 		stat.doorCnt++
+
 	case imgKind:
 		stat.imgCnt++
 	}
+
 	return stat
 }
 
 func calcAvg(state state) stat {
 	stat := state.stat
 	total := int64(stat.doorCnt + stat.alarmCnt + stat.imgCnt)
+
 	stat.avgProcessingTime =
 		time.Duration(safeDiv(state.duration.Nanoseconds(), total))
+
 	return stat
 }
 
 func renderStat(stat stat) string {
 	avgProcessingTime :=
 		stat.avgProcessingTime.Nanoseconds() / time.Millisecond.Nanoseconds()
+
 	return fmt.Sprintf(
 		"DoorCnt: %d, "+
 			"ImgCnt: %d, "+
 			"AlarmCnt: %d, "+
 			"avgProcessingTime: %dms",
+
 		stat.doorCnt,
 		stat.imgCnt,
 		stat.alarmCnt,

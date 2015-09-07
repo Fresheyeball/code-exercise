@@ -7,6 +7,7 @@ type watcher struct {
 }
 
 func newWatcher() watcher {
+
 	return watcher{
 		attemptGet(fsnotify.NewWatcher()).(*fsnotify.Watcher)}
 }
@@ -14,6 +15,7 @@ func newWatcher() watcher {
 func watchInput(input string) watcher {
 	w := newWatcher()
 	attempt(w.watcher.Add(input))
+
 	return w
 }
 
@@ -27,5 +29,6 @@ func logErrors(w watcher) watcher {
 			attempt(<-w.watcher.Errors)
 		}
 	}()
+
 	return w
 }

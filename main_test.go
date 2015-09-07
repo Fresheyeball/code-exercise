@@ -14,12 +14,15 @@ func TestWhenCreation(t *testing.T) {
 	out := whenCreation(in)
 	write := fsnotify.Write
 	create := fsnotify.Create
-	proof := func() {
+
+	check := func() {
 		fuzzy.Fuzz(&event)
 		in <- event
+
 		go func() {
 			for output := range out {
 				if !(output.Op&create == create || output.Op&write == write) {
+
 					t.Fatal(
 						"Something other than create and write made it through",
 						output)
@@ -27,7 +30,8 @@ func TestWhenCreation(t *testing.T) {
 			}
 		}()
 	}
-	forN(100, proof)
+
+	forN(100, check)
 }
 
 // func TestCollect(t *testing.T) {

@@ -21,5 +21,6 @@ func runReadfile(readFile readFile) ([]byte, error) {
 	if readFile != "" {
 		return ioutil.ReadFile(string(readFile))
 	}
+
 	return []byte{}, errors.New("file name cannot be empty")
 }

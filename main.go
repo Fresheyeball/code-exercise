@@ -17,9 +17,11 @@ var emptyState = state{emptyStat, 0}
 
 func whenCreation(
 	events <-chan fsnotify.Event) <-chan fsnotify.Event {
+
 	out := make(chan fsnotify.Event)
 	write := fsnotify.Write
 	create := fsnotify.Create
+
 	go func() {
 		for event := range events {
 			switch {
@@ -30,6 +32,7 @@ func whenCreation(
 			}
 		}
 	}()
+
 	return out
 }
 
@@ -43,10 +46,13 @@ func collect(
 	ticker <-chan time.Time) <-chan stat {
 
 	stats := make(chan stat)
+
 	go func() {
 		state := emptyState
+
 		for {
 			select {
+
 			case event := <-events:
 				eventTime := time.Now()
 				newStat, println :=
@@ -54,12 +60,14 @@ func collect(
 				state.duration += time.Since(eventTime)
 				state.stat = newStat
 				runPrintln(println)
+
 			case <-ticker:
 				stats <- calcAvg(state)
 				state = emptyState
 			}
 		}
 	}()
+
 	return stats
 }
 
