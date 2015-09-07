@@ -8,12 +8,6 @@ func attempt(err error) {
 	}
 }
 
-func attemptWith(message string, err error) {
-	if err != nil {
-		log.Fatal(message, err)
-	}
-}
-
 func attemptGet(x interface{}, err error) interface{} {
 	attempt(err)
 	return x
