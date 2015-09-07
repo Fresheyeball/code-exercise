@@ -2,6 +2,8 @@ package main
 
 import "math/rand"
 
+const checkSize int = 1000
+
 func choose(min, max int) int {
 	return rand.Intn(max-min) + min
 }

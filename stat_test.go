@@ -89,9 +89,9 @@ func TestDecodeFile(t *testing.T) {
 		}
 	}
 
-	forN(100, checkBadFile)
-	forN(100, checkBadKind)
-	forN(100, checkValid)
+	forN(checkSize, checkBadFile)
+	forN(checkSize, checkBadKind)
+	forN(checkSize, checkValid)
 }
 
 func TestUpdateStat(t *testing.T) {
@@ -124,7 +124,7 @@ func TestUpdateStat(t *testing.T) {
 		}
 	}
 
-	forN(100, check)
+	forN(checkSize, check)
 }
 
 func TestCalcAvg(t *testing.T) {
@@ -162,5 +162,5 @@ func TestCalcAvg(t *testing.T) {
 		}
 	}
 
-	forN(100, check)
+	forN(checkSize, check)
 }

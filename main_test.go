@@ -31,7 +31,7 @@ func TestWhenCreation(t *testing.T) {
 		}()
 	}
 
-	forN(100, check)
+	forN(checkSize, check)
 }
 
 // func TestCollect(t *testing.T) {
